@@ -63,6 +63,15 @@ function App() {
     setIsDragging(false);
   };
 
+  const handleWheel = (e: React.WheelEvent<HTMLCanvasElement>) => {
+    // Use negative delta values to mimic MacOS native drag
+    setViewport((prev) => ({
+      ...prev,
+      offsetX: prev.offsetX - e.deltaX,
+      offsetY: prev.offsetY - e.deltaY,
+    }));
+  };
+
   return (
     <div style={{ width: "100vw", height: "100vh" }}>
       <canvas
@@ -70,6 +79,7 @@ function App() {
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
+        onWheel={handleWheel}
         style={{
           width: "100%",
           height: "100%",
