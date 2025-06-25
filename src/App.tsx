@@ -72,6 +72,7 @@ function App() {
     setIsDragging(false);
   };
 
+  // TODO: Figure out how to disable Safari two-finger swipe back behavior
   const handleWheel = (e: React.WheelEvent<HTMLCanvasElement>) => {
     // Use negative delta values to mimic MacOS native drag
     setViewport((prev) => ({
