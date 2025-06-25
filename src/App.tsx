@@ -7,11 +7,13 @@ type Position = {
 };
 
 type Viewport = {
+  scale: number;
   offsetX: number;
   offsetY: number;
 };
 
 const initialViewport: Viewport = {
+  scale: 1,
   offsetX: 0,
   offsetY: 0,
 };
@@ -30,11 +32,18 @@ function App() {
     canvas.width = canvas.offsetWidth * window.devicePixelRatio;
     canvas.height = canvas.offsetHeight * window.devicePixelRatio;
 
-    draw(context, viewport);
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.save();
+
+    context.translate(viewport.offsetX, viewport.offsetY);
+    context.scale(viewport.scale, viewport.scale);
+
+    draw(context);
+
+    context.restore();
   }, [viewport]);
 
-  const draw = (context: CanvasRenderingContext2D, viewport: Viewport) => {
-    context.translate(viewport.offsetX, viewport.offsetY);
+  const draw = (context: CanvasRenderingContext2D) => {
     context.fillStyle = "purple";
     const rectSize = 100;
     context.fillRect(0, 0, rectSize, rectSize);
