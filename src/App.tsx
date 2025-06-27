@@ -110,6 +110,8 @@ function App() {
             value={patternSize}
             onChange={(e) => setPatternSize(e.target.valueAsNumber)}
             type={"number"}
+            min={1}
+            max={100}
           />
         </label>
       </div>

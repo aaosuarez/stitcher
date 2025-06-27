@@ -3,6 +3,9 @@ export class Pattern {
   width: number;
 
   constructor(height: number, width: number) {
+    if (height < 1 || width < 1) {
+      throw new Error("Pattern size must be greater than 0");
+    }
     this.height = height;
     this.width = width;
   }
