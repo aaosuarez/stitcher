@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
 import { Pattern } from "./Pattern.ts";
+import { PatternRenderer } from "./PatternRenderer.ts";
 
 type Position = {
   x: number;
@@ -25,29 +26,11 @@ function App() {
   const [isDragging, setIsDragging] = useState(false);
   const [viewport, setViewport] = useState(initialViewport);
   const [patternSize, setPatternSize] = useState(2);
-  const pattern = new Pattern(patternSize, patternSize);
-
-  const draw = (context: CanvasRenderingContext2D) => {
-    const cellSize = 100;
-    const borderWidth = 1;
-
-    // Draw all cells with grid
-    for (let y = 0; y < pattern.height; y++) {
-      for (let x = 0; x < pattern.width; x++) {
-        const cellX = x * cellSize;
-        const cellY = y * cellSize;
-
-        // Fill the cell
-        context.fillStyle = "#f8f8f8";
-        context.fillRect(cellX, cellY, cellSize, cellSize);
-
-        // Draw border
-        context.strokeStyle = "#000";
-        context.lineWidth = borderWidth;
-        context.strokeRect(cellX, cellY, cellSize, cellSize);
-      }
-    }
-  };
+  const pattern = useMemo(
+    () => new Pattern(patternSize, patternSize),
+    [patternSize],
+  );
+  const renderer = useMemo(() => new PatternRenderer(), []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -57,16 +40,15 @@ function App() {
     canvas.width = canvas.offsetWidth * window.devicePixelRatio;
     canvas.height = canvas.offsetHeight * window.devicePixelRatio;
 
-    context.clearRect(0, 0, canvas.width, canvas.height);
     context.save();
 
     context.translate(viewport.offsetX, viewport.offsetY);
     context.scale(viewport.scale, viewport.scale);
 
-    draw(context);
+    renderer.render(context, pattern);
 
     context.restore();
-  }, [viewport, draw]);
+  }, [viewport, renderer, pattern]);
 
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
     setIsDragging(true);
