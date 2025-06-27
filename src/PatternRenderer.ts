@@ -1,7 +1,7 @@
 import type { Pattern } from "./Pattern.ts";
 
 export class PatternRenderer {
-  private cellSize = 100;
+  cellSize = 100;
   private borderWidth = 1;
 
   render(context: CanvasRenderingContext2D, pattern: Pattern) {
@@ -24,7 +24,7 @@ export class PatternRenderer {
         const cellY = y * this.cellSize;
 
         // Fill the cell
-        context.fillStyle = "#f8f8f8";
+        context.fillStyle = pattern.hasStitch(x, y) ? "red" : "#f8f8f8";
         context.fillRect(cellX, cellY, this.cellSize, this.cellSize);
 
         // Draw border
