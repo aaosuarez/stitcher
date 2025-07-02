@@ -22,6 +22,8 @@ const initialViewport: Viewport = {
   offsetY: 0,
 };
 
+type Tool = "paint" | "clear";
+
 function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [viewport, setViewport] = useState(initialViewport);
@@ -33,6 +35,7 @@ function App() {
   const renderer = useMemo(() => new PatternRenderer(), []);
   const [renderTrigger, setRenderTrigger] = useState(0);
   const [selectedColor, setSelectedColor] = useState("500");
+  const [tool, setTool] = useState<Tool>("paint");
 
   const render = useCallback(() => {
     const canvas = canvasRef.current;
@@ -56,7 +59,17 @@ function App() {
   }, [render, renderTrigger]);
 
   const handleCellPaint = (x: number, y: number) => {
-    const changed = pattern.setStitch(x, y, selectedColor);
+    let changed;
+
+    switch (tool) {
+      case "paint":
+        changed = pattern.setStitch(x, y, selectedColor);
+        break;
+      case "clear":
+        changed = pattern.clearStitch(x, y);
+        break;
+    }
+
     if (changed) {
       setRenderTrigger((prev) => prev + 1);
     }
@@ -93,6 +106,18 @@ function App() {
             flexDirection: "column",
           }}
         >
+          <button
+            style={{ border: tool === "paint" ? "1px solid green" : "" }}
+            onClick={() => setTool("paint")}
+          >
+            Paint
+          </button>
+          <button
+            style={{ border: tool === "clear" ? "1px solid green" : "" }}
+            onClick={() => setTool("clear")}
+          >
+            Clear
+          </button>
           <ColorList
             selectedColor={selectedColor}
             onColorSelect={setSelectedColor}

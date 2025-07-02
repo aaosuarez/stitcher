@@ -26,15 +26,13 @@ export class Pattern {
     return true;
   }
 
-  toggleStitch(x: number, y: number, threadId: string): boolean {
+  clearStitch(x: number, y: number): boolean {
     if (!this.isInBounds(x, y)) return false;
     const key = this.getStitchKey(x, y);
-
-    if (this.stitches.get(key) === threadId) {
-      this.stitches.delete(key);
-    } else {
-      this.stitches.set(key, threadId);
+    if (!this.stitches.has(key)) {
+      return false;
     }
+    this.stitches.delete(key);
     return true;
   }
 
