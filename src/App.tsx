@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
 import { Pattern } from "./Pattern.ts";
 import { PatternRenderer } from "./PatternRenderer.ts";
+import { ColorList } from "./ColorList.tsx";
 
 export type Position = {
   x: number;
@@ -143,19 +144,32 @@ function App() {
           />
         </label>
       </div>
-      <canvas
-        ref={canvasRef}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onWheel={handleWheel}
-        onClick={handleClick}
-        style={{
-          width: "100%",
-          height: "100%",
-          cursor: isDragging ? "grabbing" : "grab",
-        }}
-      ></canvas>
+      <div style={{ display: "flex", height: "100%", width: "100%" }}>
+        <div
+          style={{
+            display: "flex",
+            width: "140px",
+            flexShrink: 0,
+            flexDirection: "column",
+          }}
+        >
+          <ColorList />
+        </div>
+        <canvas
+          ref={canvasRef}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onWheel={handleWheel}
+          onClick={handleClick}
+          style={{
+            width: "100%",
+            height: "100%",
+            cursor: isDragging ? "grabbing" : "grab",
+            flexGrow: 1,
+          }}
+        ></canvas>
+      </div>
     </div>
   );
 }
