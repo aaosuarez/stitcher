@@ -25,6 +25,8 @@ function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const lastMousePosition = useRef<Position>({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
+  const [isPainting, setIsPainting] = useState(false);
+  const [hasPainted, setHasPainted] = useState(false);
   const [viewport, setViewport] = useState(initialViewport);
   const [patternSize, setPatternSize] = useState(10);
   const pattern = useMemo(
@@ -89,26 +91,44 @@ function App() {
 
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
     e.preventDefault();
-    setIsDragging(true);
+
+    if (e.button === 0) {
+      setIsPainting(true);
+    } else if (e.button == 2) {
+      setIsDragging(true);
+    }
     lastMousePosition.current = { x: e.clientX, y: e.clientY };
   };
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!isDragging) return;
-    const dx = e.clientX - lastMousePosition.current.x;
-    const dy = e.clientY - lastMousePosition.current.y;
+  const handleCellPaint = (x: number, y: number) => {
+    const changed = pattern.setStitch(x, y, selectedColor);
+    if (changed) {
+      setRenderTrigger((prev) => prev + 1);
+    }
+  };
 
-    setViewport((prev) => ({
-      ...prev,
-      offsetX: prev.offsetX + dx,
-      offsetY: prev.offsetY + dy,
-    }));
+  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (isDragging) {
+      const dx = e.clientX - lastMousePosition.current.x;
+      const dy = e.clientY - lastMousePosition.current.y;
+
+      setViewport((prev) => ({
+        ...prev,
+        offsetX: prev.offsetX + dx,
+        offsetY: prev.offsetY + dy,
+      }));
+    } else if (isPainting) {
+      const cell = screenToPatternCell({ x: e.clientX, y: e.clientY });
+      handleCellPaint(cell.x, cell.y);
+      setHasPainted(true);
+    }
 
     lastMousePosition.current = { x: e.clientX, y: e.clientY };
   };
 
   const handleMouseUp = () => {
     setIsDragging(false);
+    setIsPainting(false);
   };
 
   // TODO: Figure out how to disable Safari two-finger swipe back behavior
@@ -122,14 +142,21 @@ function App() {
   };
 
   const handleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    const cell = screenToPatternCell({
-      x: e.clientX,
-      y: e.clientY,
-    });
-    const changed = pattern.toggleStitch(cell.x, cell.y, selectedColor);
-    if (changed) {
-      setRenderTrigger((prev) => prev + 1);
+    if (!hasPainted) {
+      const cell = screenToPatternCell({
+        x: e.clientX,
+        y: e.clientY,
+      });
+      const changed = pattern.toggleStitch(cell.x, cell.y, selectedColor);
+      if (changed) {
+        setRenderTrigger((prev) => prev + 1);
+      }
     }
+    setHasPainted(false);
+  };
+
+  const handleContextMenu = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    e.preventDefault();
   };
 
   return (
@@ -162,7 +189,8 @@ function App() {
         </div>
         <canvas
           ref={canvasRef}
-          onContextMenu={handleMouseDown}
+          onContextMenu={handleContextMenu}
+          onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
           onWheel={handleWheel}

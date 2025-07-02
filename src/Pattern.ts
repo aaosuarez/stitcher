@@ -15,6 +15,17 @@ export class Pattern {
     return x >= 0 && x < this.width && y >= 0 && y < this.height;
   }
 
+  setStitch(x: number, y: number, threadId: string): boolean {
+    if (!this.isInBounds(x, y)) return false;
+
+    const key = this.getStitchKey(x, y);
+    const oldValue = this.stitches.get(key);
+    if (oldValue === threadId) return false;
+
+    this.stitches.set(key, threadId);
+    return true;
+  }
+
   toggleStitch(x: number, y: number, threadId: string): boolean {
     if (!this.isInBounds(x, y)) return false;
     const key = this.getStitchKey(x, y);
