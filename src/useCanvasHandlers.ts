@@ -110,11 +110,16 @@ export const useCanvasHandlers = ({
     lastMousePosition.current = { x: e.clientX, y: e.clientY };
   };
 
+  const handleMouseLeave = () => {
+    setMode("idle");
+  };
+
   return {
     onContextMenu: handleContextMenu,
     onMouseDown: handleMouseDown,
     onMouseMove: handleMouseMove,
     onMouseUp: handleMouseUp,
+    onMouseLeave: handleMouseLeave,
     onWheel: handleWheel,
     onClick: handleClick,
   };
