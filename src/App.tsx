@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
 import { Pattern } from "./Pattern.ts";
 import { PatternRenderer } from "./PatternRenderer.ts";
@@ -34,7 +34,7 @@ function App() {
   const [renderTrigger, setRenderTrigger] = useState(0);
   const [selectedColor, setSelectedColor] = useState("500");
 
-  useEffect(() => {
+  const render = useCallback(() => {
     const canvas = canvasRef.current;
     const context = canvas?.getContext("2d");
     if (!canvas || !context) return;
@@ -43,14 +43,17 @@ function App() {
     canvas.height = canvas.offsetHeight * window.devicePixelRatio;
 
     context.save();
-
     context.translate(viewport.offsetX, viewport.offsetY);
     context.scale(viewport.scale, viewport.scale);
 
     renderer.render(context, pattern);
 
     context.restore();
-  }, [viewport, renderer, pattern, renderTrigger]);
+  }, [viewport, renderer, pattern]);
+
+  useEffect(() => {
+    render();
+  }, [render, renderTrigger]);
 
   const handleCellPaint = (x: number, y: number) => {
     const changed = pattern.setStitch(x, y, selectedColor);
