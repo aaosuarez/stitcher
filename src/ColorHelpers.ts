@@ -18,10 +18,6 @@ class DMCThreadColors {
   getThreadById(threadId: string) {
     return this.threads.find((thread) => thread.id === threadId);
   }
-
-  forEach(callback: (thread: ThreadColor) => void) {
-    this.threads.forEach(callback);
-  }
 }
 
 export const threadColors = new DMCThreadColors();
