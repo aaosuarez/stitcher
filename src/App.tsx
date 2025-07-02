@@ -24,10 +24,12 @@ const initialViewport: Viewport = {
 
 type Tool = "paint" | "clear";
 
+const SIDEBAR_WIDTH = 140;
+
 function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [viewport, setViewport] = useState(initialViewport);
-  const [patternSize, setPatternSize] = useState(10);
+  const [patternSize, setPatternSize] = useState(100);
   const pattern = useMemo(
     () => new Pattern(patternSize, patternSize),
     [patternSize],
@@ -85,7 +87,14 @@ function App() {
 
   return (
     <div style={{ width: "100vw", height: "100vh" }}>
-      <div>
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          right: 0,
+          padding: 10,
+        }}
+      >
         <label>
           Pattern size:
           <input
@@ -101,9 +110,10 @@ function App() {
         <div
           style={{
             display: "flex",
-            width: "140px",
+            width: SIDEBAR_WIDTH,
             flexShrink: 0,
             flexDirection: "column",
+            paddingTop: 16,
           }}
         >
           <button
@@ -127,7 +137,7 @@ function App() {
           ref={canvasRef}
           {...canvasHandlers}
           style={{
-            width: "100%",
+            width: `calc(100% - ${SIDEBAR_WIDTH}px)`,
             height: "100%",
             flex: 1,
           }}
