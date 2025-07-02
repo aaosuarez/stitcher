@@ -1,13 +1,11 @@
-import dmcColors from "./dmc.json";
+import { threadColors } from "./ColorHelpers.ts";
 
-type ThreadColor = {
-  id: string;
-  name: string;
-  hex: string;
+type ColorListProps = {
+  selectedColor: string;
+  onColorSelect: (color: string) => void;
 };
 
-export const ColorList = () => {
-  const colors: ThreadColor[] = dmcColors;
+export const ColorList = ({ selectedColor, onColorSelect }: ColorListProps) => {
   return (
     <ul
       style={{
@@ -18,9 +16,16 @@ export const ColorList = () => {
         margin: 0,
       }}
     >
-      {colors.map((color) => (
+      {threadColors.threads.map((color) => (
         <li
-          style={{ background: color.hex, width: "16px", height: "16px" }}
+          style={{
+            background: color.hex,
+            width: "16px",
+            height: "16px",
+            border: "1px solid transparent",
+            borderColor: color.id === selectedColor ? "black" : "transparent",
+          }}
+          onClick={() => onColorSelect(color.id)}
           key={color.id}
         ></li>
       ))}

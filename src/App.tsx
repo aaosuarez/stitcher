@@ -33,6 +33,7 @@ function App() {
   );
   const renderer = useMemo(() => new PatternRenderer(), []);
   const [renderTrigger, setRenderTrigger] = useState(0);
+  const [selectedColor, setSelectedColor] = useState("500");
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -124,7 +125,7 @@ function App() {
       x: e.clientX,
       y: e.clientY,
     });
-    const changed = pattern.toggleStitch(cell.x, cell.y);
+    const changed = pattern.toggleStitch(cell.x, cell.y, selectedColor);
     if (changed) {
       setRenderTrigger((prev) => prev + 1);
     }
@@ -153,7 +154,10 @@ function App() {
             flexDirection: "column",
           }}
         >
-          <ColorList />
+          <ColorList
+            selectedColor={selectedColor}
+            onColorSelect={setSelectedColor}
+          />
         </div>
         <canvas
           ref={canvasRef}

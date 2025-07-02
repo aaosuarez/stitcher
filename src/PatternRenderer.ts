@@ -1,5 +1,7 @@
 import type { Pattern } from "./Pattern.ts";
 
+import { threadColors } from "./ColorHelpers.ts";
+
 export class PatternRenderer {
   cellSize = 100;
   private borderWidth = 1;
@@ -24,7 +26,10 @@ export class PatternRenderer {
         const cellY = y * this.cellSize;
 
         // Fill the cell
-        context.fillStyle = pattern.hasStitch(x, y) ? "red" : "#f8f8f8";
+        const stitch = pattern.getStitchAt(x, y);
+        const threadColor =
+          stitch != null ? threadColors.getThreadById(stitch) : null;
+        context.fillStyle = threadColor?.hex ?? "#f8f8f8";
         context.fillRect(cellX, cellY, this.cellSize, this.cellSize);
 
         // Draw border
