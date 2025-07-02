@@ -99,8 +99,8 @@ export const useCanvasHandlers = ({
 
       onViewportChange({
         ...viewport,
-        offsetX: viewport.offsetX - dx,
-        offsetY: viewport.offsetY - dy,
+        offsetX: viewport.offsetX + dx,
+        offsetY: viewport.offsetY + dy,
       });
     } else if (mode === "painting") {
       const cell = screenToPatternCell({ x: e.clientX, y: e.clientY });
