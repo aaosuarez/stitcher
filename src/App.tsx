@@ -88,6 +88,7 @@ function App() {
   }
 
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    e.preventDefault();
     setIsDragging(true);
     lastMousePosition.current = { x: e.clientX, y: e.clientY };
   };
@@ -161,7 +162,7 @@ function App() {
         </div>
         <canvas
           ref={canvasRef}
-          onMouseDown={handleMouseDown}
+          onContextMenu={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
           onWheel={handleWheel}
@@ -169,8 +170,7 @@ function App() {
           style={{
             width: "100%",
             height: "100%",
-            cursor: isDragging ? "grabbing" : "grab",
-            flexGrow: 1,
+            flex: 1,
           }}
         ></canvas>
       </div>
