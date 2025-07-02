@@ -3,6 +3,7 @@ import "./App.css";
 import { Pattern } from "./Pattern.ts";
 import { PatternRenderer } from "./PatternRenderer.ts";
 import { ColorList } from "./ColorList.tsx";
+import { useCanvasHandlers } from "./useCanvasHandlers.ts";
 
 export type Position = {
   x: number;
@@ -23,10 +24,6 @@ const initialViewport: Viewport = {
 
 function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const lastMousePosition = useRef<Position>({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [isPainting, setIsPainting] = useState(false);
-  const [hasPainted, setHasPainted] = useState(false);
   const [viewport, setViewport] = useState(initialViewport);
   const [patternSize, setPatternSize] = useState(10);
   const pattern = useMemo(
@@ -55,51 +52,6 @@ function App() {
     context.restore();
   }, [viewport, renderer, pattern, renderTrigger]);
 
-  function screenToCanvas(screenPosition: Position): Position {
-    const rect = canvasRef.current?.getBoundingClientRect();
-    if (!rect) return screenPosition;
-    const devicePixelRatio = window.devicePixelRatio || 1;
-    return {
-      x: (screenPosition.x - rect.left) * devicePixelRatio,
-      y: (screenPosition.y - rect.top) * devicePixelRatio,
-    };
-  }
-
-  function canvasToWorld(canvasPosition: Position): Position {
-    return {
-      x: (canvasPosition.x - viewport.offsetX) / viewport.scale,
-      y: (canvasPosition.y - viewport.offsetY) / viewport.scale,
-    };
-  }
-
-  function screenToWorld(screenPosition: Position): Position {
-    const canvasPosition = screenToCanvas(screenPosition);
-    return canvasToWorld(canvasPosition);
-  }
-
-  function worldToPatternCell(worldPosition: Position): Position {
-    return {
-      x: Math.floor(worldPosition.x / renderer.cellSize),
-      y: Math.floor(worldPosition.y / renderer.cellSize),
-    };
-  }
-
-  function screenToPatternCell(screenPosition: Position): Position {
-    const worldPosition = screenToWorld(screenPosition);
-    return worldToPatternCell(worldPosition);
-  }
-
-  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    e.preventDefault();
-
-    if (e.button === 0) {
-      setIsPainting(true);
-    } else if (e.button == 2) {
-      setIsDragging(true);
-    }
-    lastMousePosition.current = { x: e.clientX, y: e.clientY };
-  };
-
   const handleCellPaint = (x: number, y: number) => {
     const changed = pattern.setStitch(x, y, selectedColor);
     if (changed) {
@@ -107,57 +59,13 @@ function App() {
     }
   };
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (isDragging) {
-      const dx = e.clientX - lastMousePosition.current.x;
-      const dy = e.clientY - lastMousePosition.current.y;
-
-      setViewport((prev) => ({
-        ...prev,
-        offsetX: prev.offsetX + dx,
-        offsetY: prev.offsetY + dy,
-      }));
-    } else if (isPainting) {
-      const cell = screenToPatternCell({ x: e.clientX, y: e.clientY });
-      handleCellPaint(cell.x, cell.y);
-      setHasPainted(true);
-    }
-
-    lastMousePosition.current = { x: e.clientX, y: e.clientY };
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-    setIsPainting(false);
-  };
-
-  // TODO: Figure out how to disable Safari two-finger swipe back behavior
-  const handleWheel = (e: React.WheelEvent<HTMLCanvasElement>) => {
-    // Use negative delta values to mimic MacOS native drag
-    setViewport((prev) => ({
-      ...prev,
-      offsetX: prev.offsetX - e.deltaX,
-      offsetY: prev.offsetY - e.deltaY,
-    }));
-  };
-
-  const handleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!hasPainted) {
-      const cell = screenToPatternCell({
-        x: e.clientX,
-        y: e.clientY,
-      });
-      const changed = pattern.toggleStitch(cell.x, cell.y, selectedColor);
-      if (changed) {
-        setRenderTrigger((prev) => prev + 1);
-      }
-    }
-    setHasPainted(false);
-  };
-
-  const handleContextMenu = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    e.preventDefault();
-  };
+  const canvasHandlers = useCanvasHandlers({
+    viewport,
+    onViewportChange: setViewport,
+    canvasRef,
+    cellSize: renderer.cellSize,
+    onCellPaint: handleCellPaint,
+  });
 
   return (
     <div style={{ width: "100vw", height: "100vh" }}>
@@ -189,12 +97,7 @@ function App() {
         </div>
         <canvas
           ref={canvasRef}
-          onContextMenu={handleContextMenu}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onWheel={handleWheel}
-          onClick={handleClick}
+          {...canvasHandlers}
           style={{
             width: "100%",
             height: "100%",
