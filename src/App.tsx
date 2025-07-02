@@ -26,7 +26,7 @@ function App() {
   const lastMousePosition = useRef<Position>({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [viewport, setViewport] = useState(initialViewport);
-  const [patternSize, setPatternSize] = useState(2);
+  const [patternSize, setPatternSize] = useState(10);
   const pattern = useMemo(
     () => new Pattern(patternSize, patternSize),
     [patternSize],
